@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SchemeSense AI | The Complete Portal</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="bg-glow"></div>
+
+<header class="navbar glass">
+    <div class="logo-container">
+        <img src="https://www.shutterstock.com/image-vector/indian-national-emblem-ashokas-lion-600nw-2535022975.jpg" alt="Logo" class="nav-logo">
+        <div class="logo">SchemeSense<span>AI</span></div>
+    </div>
+    <nav>
+        <a href="#home">Home</a>
+        <a href="#features">Features</a>
+        <a href="#form">Check</a>
+        <a href="#schemes">Schemes</a>
+        <a href="#contact">Contact</a>
+    </nav>
+    <div class="nav-actions">
+        <button id="themeToggle">🌙</button>
+    </div>
+</header>
+
+<section id="home" class="hero">
+    <div class="hero-text">
+        <h1>Find Government Schemes You Qualify For — <span>Instantly</span></h1>
+        <p>AI-driven analysis to help you navigate 500+ government benefits effortlessly.</p>
+        <button class="cta-btn" onclick="scrollToForm()">Check Eligibility</button>
+    </div>
+    <img src="https://pibindia.wordpress.com/wp-content/uploads/2017/08/logo_collages.jpg" class="hero-img">
+</section>
+
+<section id="features">
+    <h2 class="section-title">Smart Features</h2>
+    <div class="grid">
+        <div class="card"><div class="icon">🤖</div><h3>AI Matching</h3><p>Smart system finds best schemes.</p></div>
+        <div class="card"><div class="icon">⚡</div><h3>Instant Results</h3><p>Eligibility calculated instantly.</p></div>
+        <div class="card"><div class="icon">🔒</div><h3>Secure</h3><p>Your data is safe and encrypted.</p></div>
+        <div class="card"><div class="icon">📊</div><h3>Dashboard</h3><p>Track schemes easily.</p></div>
+    </div>
+</section>
+
+<section id="form">
+    <h2 class="section-title">Eligibility Checker</h2>
+
+    <form id="eligibilityForm" class="glass form">
+        <div class="form-group">
+            <input id="age" type="number" placeholder="Age" required>
+            <input id="income" type="number" placeholder="Annual Income (₹)" required>
+        </div>
+
+        <input id="occupation" type="text" placeholder="Occupation" required>
+
+        <select id="state" required>
+            <option value="">State</option>
+            <option>Madhya Pradesh</option>
+            <option>Maharashtra</option>
+            <option>Uttar Pradesh</option>
+            <option>Himachal Pradesh</option>
+            <option>Uttarakhand</option>
+            <option>Gujarat</option>
+        </select>
+
+        <button type="submit" class="submit-btn">Check</button>
+    </form>
+</section>
+
+<!-- 🔥 NEW RESULT SECTION -->
+<section id="resultSection" style="display:none;">
+    <h2 class="section-title">AI Eligibility Result</h2>
+
+    <div class="glass result-card">
+        <h3 id="resultScheme"></h3>
+        <p id="resultReason"></p>
+        <p><strong>Eligibility Score:</strong> <span id="resultScore"></span></p>
+        <p><strong>Confidence:</strong> <span id="resultConfidence"></span></p>
+
+        <h4>Required Documents</h4>
+        <ul id="resultDocs"></ul>
+    </div>
+</section>
+
+<section id="schemes">
+    <h2 class="section-title">Popular Schemes</h2>
+    <div class="grid">
+        <div class="card scheme-card">
+            <img src="https://info.cypruscu.com/hubfs/24-04%20scholarship%20blog%20article%201.png">
+            <h3>🎓 Education & Scholarship Schemes</h3>
+            <p>Financial help for students’ education.</p>
+        </div>
+        <div class="card scheme-card">
+            <img src="https://static1.squarespace.com/static/5bac99efb2cf79a76d80781d/5bbc67f4085229699d754e85/5da04099a9044208b6635fed/1571037401567/Ayushman%2BBharat.jpg?format=1500w">
+            <h3>🏥 Health & Insurance Schemes</h3>
+            <p>Medical support and insurance benefits.</p>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <p>© 2026 SchemeSense AI • All Rights Reserved</p>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

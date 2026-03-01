@@ -12,9 +12,11 @@ load_dotenv()
 
 api_key = os.getenv("GEMINI_API_KEY")
 if not api_key:
-    raise ValueError(" GEMINI_API_KEY not found. Check your .env file.")
+    raise ValueError("❌ GEMINI_API_KEY not found.")
 
-app = FastAPI(title="AI Government Scheme Eligibility Engine")
+
+app = FastAPI(title="BharatAI – Scheme & Job Eligibility Engine")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -33,6 +35,27 @@ chroma_client = chromadb.Client(
 )
 
 collection = chroma_client.get_or_create_collection(name="gov_schemes")
+
+
+government_jobs = [
+    {
+        "job_title": "SSC Junior Clerk",
+        "department": "Staff Selection Commission",
+        "min_age": 18,
+        "max_age": 27,
+        "required_qualification": "Graduate",
+        "required_documents": ["Aadhaar", "Educational Certificate", "Caste Certificate (if applicable)"]
+    },
+    {
+        "job_title": "Railway Group D",
+        "department": "Indian Railways",
+        "min_age": 18,
+        "max_age": 33,
+        "required_qualification": "10th Pass",
+        "required_documents": ["Aadhaar", "10th Marksheet", "Income Certificate"]
+    }
+]
+
 
 class UserProfile(BaseModel):
     age: int
@@ -67,31 +90,50 @@ def check_eligibility(user: UserProfile):
     if not relevant_docs:
         return {
             "status": "No Match",
-            "message": "No relevant schemes found based on the provided details."
+            "message": "No relevant schemes found."
         }
+
     
     prompt = f"""
-    You are an intelligent government scheme eligibility evaluator.
+    You are an AI government advisory system.
 
     User Profile:
     {user.model_dump()}
 
-    Relevant Scheme Data:
+    Government Schemes:
     {relevant_docs}
 
-    Evaluate strictly.
+    Government Job Vacancies:
+    {government_jobs}
+
+    Tasks:
+    1. Evaluate eligibility for schemes.
+    2. Evaluate eligibility for government job vacancies.
+    3. Provide structured reasoning.
+    4. Do NOT assume data outside what is provided.
 
     Return ONLY valid JSON in this format:
 
-    [
-        {{
-            "scheme_name": "string",
-            "eligible": true/false,
-            "reason": "clear explanation",
-            "required_documents": ["list of documents"],
-            "eligibility_score": 0-100
-        }}
-    ]
+    {{
+        "schemes": [
+            {{
+                "scheme_name": "string",
+                "eligible": true/false,
+                "reason": "string",
+                "required_documents": ["list"],
+                "eligibility_score": 0-100
+            }}
+        ],
+        "jobs": [
+            {{
+                "job_title": "string",
+                "department": "string",
+                "eligible": true/false,
+                "reason": "string",
+                "required_documents": ["list"]
+            }}
+        ]
+    }}
     """
 
     response = client.models.generate_content(
@@ -103,30 +145,36 @@ def check_eligibility(user: UserProfile):
     try:
         parsed = json.loads(response.text)
 
-        if not isinstance(parsed, list) or len(parsed) == 0:
-            raise ValueError("Invalid model output format")
+        schemes = parsed.get("schemes", [])
+        jobs = parsed.get("jobs", [])
 
-        parsed_sorted = sorted(
-            parsed,
+        # Rank schemes
+        schemes_sorted = sorted(
+            schemes,
             key=lambda x: x.get("eligibility_score", 0),
             reverse=True
         )
 
-        best_match = parsed_sorted[0]
-        others = parsed_sorted[1:]
+        best_scheme = schemes_sorted[0] if schemes_sorted else None
+        others = schemes_sorted[1:] if len(schemes_sorted) > 1 else []
 
-        confidence = "High" if best_match.get("eligibility_score", 0) >= 75 else \
-                     "Medium" if best_match.get("eligibility_score", 0) >= 40 else \
-                     "Low"
+        confidence = "Low"
+        if best_scheme:
+            score = best_scheme.get("eligibility_score", 0)
+            if score >= 75:
+                confidence = "High"
+            elif score >= 40:
+                confidence = "Medium"
 
         return {
             "status": "Success",
-            "best_match": best_match,
+            "best_scheme": best_scheme,
             "other_schemes": others,
+            "job_opportunities": jobs,
             "confidence": confidence
         }
 
-    except Exception as e:
+    except Exception:
         return {
             "status": "Error",
             "message": "Model did not return valid JSON.",
