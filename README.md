@@ -1,5 +1,5 @@
 # Pan-India
-
+Frontend-deployment:https://bharat-ai-frontend.netlify.app/
 
 Bharat.Ai– Scheme & Job Eligibility Engine
 Bharat.Ai is an AI-powered government advisory platform that helps Indian citizens instantly discover:
@@ -90,3 +90,5 @@ Production deployment
 
 💡 Why This Project Matters
 Many citizens are unaware of schemes and job opportunities they qualify for. BharatAI bridges this gap by using AI + vector search to provide personalized government assistance instantly.
+
+Backend-deployment: https://bharat-ai-backend-w743.onrender.com/docs
