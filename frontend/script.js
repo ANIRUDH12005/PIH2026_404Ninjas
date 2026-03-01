@@ -1,53 +1,89 @@
-// Dark Mode
-const toggle = document.getElementById("themeToggle");
-toggle.onclick = () => {
-    document.body.classList.toggle("dark");
-    toggle.textContent = document.body.classList.contains("dark") ? "☀️" : "🌙";
+// DARK MODE
+const toggle=document.getElementById("themeToggle");
+toggle.onclick=()=>{
+ document.body.classList.toggle("dark");
+ toggle.textContent=
+ document.body.classList.contains("dark")?"☀️":"🌙";
 };
 
-// Login Modal
-function toggleModal() {
-    const modal = document.getElementById("loginModal");
-    modal.style.display = (modal.style.display === "flex") ? "none" : "flex";
+
+// SCROLL BUTTON
+function scrollToForm(){
+ document.getElementById("form")
+ .scrollIntoView({behavior:"smooth"});
 }
 
-// Global Close for Modal
-window.onclick = (e) => {
-    const modal = document.getElementById("loginModal");
-    if (e.target == modal) modal.style.display = "none";
-};
 
-// Smooth Scroll
-function scrollToForm() {
-    document.getElementById("form").scrollIntoView({ behavior: "smooth" });
-}
+// RESULT SYSTEM (CONNECTED TO BACKEND)
+const form=document.getElementById("eligibilityForm");
+const resultSection=document.getElementById("resultSection");
+const progressFill=document.getElementById("progressFill");
+const resultTitle=document.getElementById("resultTitle");
+const backendText=document.getElementById("backendResult");
 
-// AI Result Simulation
-const eligibilityForm = document.getElementById("eligibilityForm");
-if(eligibilityForm) {
-    eligibilityForm.addEventListener("submit", e => {
-        e.preventDefault();
-        alert("🤖 Analyzing eligibility...");
-        setTimeout(() => {
-            alert("Match Found! You qualify for 5 schemes.");
-            document.getElementById("dashboard").scrollIntoView({ behavior: "smooth" });
-        }, 1500);
-    });
-}
+if(form){
 
-// Reveal Animation
-const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.style.opacity = 1;
-            entry.target.style.transform = "translateY(0)";
-        }
-    });
+form.addEventListener("submit",async(e)=>{
+ e.preventDefault();
+
+ const formData=new FormData(form);
+ const name=formData.get("name") || "User";
+
+ resultTitle.textContent=`Results for ${name}`;
+ backendText.textContent="🤖 Analyzing eligibility...";
+
+ resultSection.style.display="block";
+ resultSection.scrollIntoView({behavior:"smooth"});
+
+ setTimeout(()=>{
+  resultSection.classList.add("show");
+ },100);
+
+ try{
+
+  const res=await fetch("http://127.0.0.1:8000/check",{
+   method:"POST",
+   body:formData
+  });
+
+  const data=await res.json();
+
+  backendText.textContent=data.message;
+
+  progressFill.style.width=data.score+"%";
+  progressFill.textContent=data.score+"%";
+
+ }
+ catch(err){
+  backendText.textContent="❌ Server error. Please try again.";
+ }
+
 });
 
-document.querySelectorAll(".card, .scheme-card, .testimonial").forEach(el => {
-    el.style.opacity = 0;
-    el.style.transform = "translateY(40px)";
-    el.style.transition = "0.6s ease-out";
-    observer.observe(el);
+}
+
+
+// CTA SCROLL
+function goToSchemes(){
+ document.getElementById("schemes")
+ .scrollIntoView({behavior:"smooth"});
+}
+
+
+// REVEAL ANIMATION
+const observer=new IntersectionObserver(entries=>{
+ entries.forEach(entry=>{
+  if(entry.isIntersecting){
+   entry.target.style.opacity=1;
+   entry.target.style.transform="translateY(0)";
+  }
+ });
+});
+
+document.querySelectorAll(".card,.scheme-card,.testimonial")
+.forEach(el=>{
+ el.style.opacity=0;
+ el.style.transform="translateY(40px)";
+ el.style.transition=".6s ease-out";
+ observer.observe(el);
 });
