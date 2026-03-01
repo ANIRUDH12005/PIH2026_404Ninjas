@@ -5,35 +5,76 @@ toggle.onclick = () => {
     toggle.textContent = document.body.classList.contains("dark") ? "☀️" : "🌙";
 };
 
-// Login Modal
-function toggleModal() {
-    const modal = document.getElementById("loginModal");
-    modal.style.display = (modal.style.display === "flex") ? "none" : "flex";
-}
-
-// Global Close for Modal
-window.onclick = (e) => {
-    const modal = document.getElementById("loginModal");
-    if (e.target == modal) modal.style.display = "none";
-};
-
 // Smooth Scroll
 function scrollToForm() {
     document.getElementById("form").scrollIntoView({ behavior: "smooth" });
 }
 
-// AI Result Simulation
+// Backend Integration
 const eligibilityForm = document.getElementById("eligibilityForm");
-if(eligibilityForm) {
-    eligibilityForm.addEventListener("submit", e => {
-        e.preventDefault();
-        alert("🤖 Analyzing eligibility...");
-        setTimeout(() => {
-            alert("Match Found! You qualify for 5 schemes.");
-            document.getElementById("dashboard").scrollIntoView({ behavior: "smooth" });
-        }, 1500);
-    });
-}
+
+eligibilityForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const age = parseInt(document.getElementById("age").value);
+    const income = parseInt(document.getElementById("income").value);
+    const occupation = document.getElementById("occupation").value;
+    const state = document.getElementById("state").value;
+
+    try {
+        const response = await fetch("http://127.0.0.1:8000/check", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ age, income, occupation, state })
+        });
+
+        const data = await response.json();
+
+        console.log("Backend Response:", data);
+
+        if (data.status === "Success" && data.best_scheme) {
+
+            const scheme = data.best_scheme;
+
+            document.getElementById("resultScheme").innerText =
+                `Best Scheme: ${scheme.scheme_name} (${scheme.eligible ? "Eligible ✅" : "Not Eligible ❌"})`;
+
+            document.getElementById("resultReason").innerText =
+                scheme.reason;
+
+            document.getElementById("resultScore").innerText =
+                scheme.eligibility_score;
+
+            document.getElementById("resultConfidence").innerText =
+                data.confidence;
+
+            const docsList = document.getElementById("resultDocs");
+            docsList.innerHTML = "";
+
+            if (scheme.required_documents && scheme.required_documents.length > 0) {
+                scheme.required_documents.forEach(doc => {
+                    const li = document.createElement("li");
+                    li.innerText = doc;
+                    docsList.appendChild(li);
+                });
+            } else {
+                const li = document.createElement("li");
+                li.innerText = "No specific documents mentioned.";
+                docsList.appendChild(li);
+            }
+
+            document.getElementById("resultSection").style.display = "block";
+            document.getElementById("resultSection").scrollIntoView({ behavior: "smooth" });
+
+        } else {
+            alert("No matching schemes found.");
+        }
+
+    } catch (error) {
+        console.error("Error:", error);
+        alert("Backend connection failed. Open browser console (F12) to see error.");
+    }
+});
 
 // Reveal Animation
 const observer = new IntersectionObserver(entries => {
@@ -45,7 +86,7 @@ const observer = new IntersectionObserver(entries => {
     });
 });
 
-document.querySelectorAll(".card, .scheme-card, .testimonial").forEach(el => {
+document.querySelectorAll(".card, .scheme-card").forEach(el => {
     el.style.opacity = 0;
     el.style.transform = "translateY(40px)";
     el.style.transition = "0.6s ease-out";
